@@ -27,11 +27,9 @@ export const fetchTasks = createAsyncThunk('tasks/fetchTasks', (todolistId: stri
 });
 
 export const removeTaskTC = createAsyncThunk('tasks/removeTask', (payload: { taskId: string, todolistId: string }, thunkAPI) => {
-    todolistsAPI.deleteTask(payload.todolistId, payload.taskId)
-        .then(res => {
-            const action = removeTaskAC({taskId: payload.taskId, todolistId: payload.todolistId});
-            thunkAPI.dispatch(action);
-        });
+    return todolistsAPI.deleteTask(payload.todolistId, payload.taskId)
+        .then(res => ({taskId: payload.taskId, todolistId: payload.todolistId}));
+
 });
 // export const removeTaskTC = (taskId: string, todolistId: string) => (dispatch: Dispatch<ActionsType>) => {
 //     todolistsAPI.deleteTask(todolistId, taskId)
@@ -45,13 +43,13 @@ const slice = createSlice({
     name: 'tasks',
     initialState: initialState,
     reducers: {
-        removeTaskAC(state, action: PayloadAction<{ taskId: string, todolistId: string }>) {
-            const tasks = state[action.payload.todolistId];
-            const index = tasks.findIndex(t => t.id === action.payload.taskId);
-            if (index > -1) {
-                tasks.splice(index, 1);
-            }
-        },
+        // removeTaskAC(state, action: PayloadAction<{ taskId: string, todolistId: string }>) {
+        //     const tasks = state[action.payload.todolistId];
+        //     const index = tasks.findIndex(t => t.id === action.payload.taskId);
+        //     if (index > -1) {
+        //         tasks.splice(index, 1);
+        //     }
+        // },
         addTaskAC(state, action: PayloadAction<{ task: TaskType }>) {
             state[action.payload.task.todoListId].unshift(action.payload.task);
         },
@@ -82,12 +80,22 @@ const slice = createSlice({
             state[action.payload.todolistId] = action.payload.tasks;
 
         });
+        builder.addCase(removeTaskTC.fulfilled, (state, action) => {
+            // @ts-ignore
+            const tasks = state[action.payload.todolistId];
+            // @ts-ignore
+            const index = tasks.findIndex(t => t.id === action.payload.taskId);
+            if (index > -1) {
+                tasks.splice(index, 1);
+            }
+
+        });
     }
 
 });
 
 export const tasksReducer = slice.reducer;
-export const {removeTaskAC, addTaskAC, updateTaskAC} = slice.actions;
+export const {addTaskAC, updateTaskAC} = slice.actions;
 
 
 export const addTaskTC = (title: string, todolistId: string) => (dispatch: Dispatch) => {
@@ -154,7 +162,6 @@ export type TasksStateType = {
     [key: string]: Array<TaskType>
 }
 type ActionsType =
-    | ReturnType<typeof removeTaskAC>
     | ReturnType<typeof addTaskAC>
     | ReturnType<typeof updateTaskAC>
     | AddTodolistActionType
