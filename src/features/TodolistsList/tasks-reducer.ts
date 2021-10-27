@@ -13,8 +13,6 @@ import {setAppErrorAC, setAppStatusAC} from '../../app/app-reducer';
 import {handleServerAppError, handleServerNetworkError} from '../../utils/error-utils';
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 
-const initialState: TasksStateType = {};
-
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async (todolistId: string, thunkAPI) => {
     thunkAPI.dispatch(setAppStatusAC({status: 'loading'}));
     const res = await todolistsAPI.getTasks(todolistId);
@@ -91,7 +89,7 @@ export const updateTaskTC = createAsyncThunk('tasks/updateTask', async (payload:
 
 const slice = createSlice({
     name: 'tasks',
-    initialState,
+    initialState: {} as TasksStateType,
     reducers: {},
     extraReducers: (builder) => {
         builder.addCase(addTodolistAC, (state, action) => {

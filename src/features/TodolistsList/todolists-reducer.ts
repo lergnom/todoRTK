@@ -4,49 +4,7 @@ import {RequestStatusType, setAppErrorAC, setAppStatusAC} from '../../app/app-re
 import {handleServerNetworkError} from '../../utils/error-utils';
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
-const initialState: Array<TodolistDomainType> = [];
 
-const slice = createSlice({
-    name: 'todolist',
-    initialState: initialState,
-    reducers: {
-        removeTodolistAC(state, action: PayloadAction<{ id: string }>) {
-            const index = state.findIndex(tl => tl.id === action.payload.id);
-            if (index > -1) {
-                state.splice(index, 1);
-            }
-        },
-        addTodolistAC(state, action: PayloadAction<{ todolist: TodolistType }>) {
-            state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
-        },
-        changeTodolistTitleAC(state, action: PayloadAction<{ id: string, title: string }>) {
-            const index = state.findIndex(tl => tl.id === action.payload.id);
-            state[index].title = action.payload.title;
-        },
-        changeTodolistFilterAC(state, action: PayloadAction<{ id: string, filter: FilterValuesType }>) {
-            const index = state.findIndex(tl => tl.id === action.payload.id);
-            state[index].filter = action.payload.filter;
-        },
-        changeTodolistEntityStatusAC(state, action: PayloadAction<{ id: string, status: RequestStatusType }>) {
-            const index = state.findIndex(tl => tl.id === action.payload.id);
-            state[index].entityStatus = action.payload.status;
-        },
-        setTodolistsAC(state, action: PayloadAction<{ todolists: Array<TodolistType> }>) {
-            return action.payload.todolists.map(tl => ({...tl, filter: 'all', entityStatus: 'idle'}));
-        },
-    }
-});
-
-export const {
-    setTodolistsAC,
-    changeTodolistEntityStatusAC,
-    removeTodolistAC,
-    addTodolistAC,
-    changeTodolistTitleAC,
-    changeTodolistFilterAC
-} = slice.actions;
-
-export const todolistsReducer = slice.reducer;
 // thunks
 export const fetchTodolistsTC = () => {
     return (dispatch: ThunkDispatch) => {
@@ -93,6 +51,49 @@ export const changeTodolistTitleTC = (id: string, title: string) => {
             });
     };
 };
+
+const slice = createSlice({
+    name: 'todolist',
+    initialState: [] as Array<TodolistDomainType>,
+    reducers: {
+        removeTodolistAC(state, action: PayloadAction<{ id: string }>) {
+            const index = state.findIndex(tl => tl.id === action.payload.id);
+            if (index > -1) {
+                state.splice(index, 1);
+            }
+        },
+        addTodolistAC(state, action: PayloadAction<{ todolist: TodolistType }>) {
+            state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
+        },
+        changeTodolistTitleAC(state, action: PayloadAction<{ id: string, title: string }>) {
+            const index = state.findIndex(tl => tl.id === action.payload.id);
+            state[index].title = action.payload.title;
+        },
+        changeTodolistFilterAC(state, action: PayloadAction<{ id: string, filter: FilterValuesType }>) {
+            const index = state.findIndex(tl => tl.id === action.payload.id);
+            state[index].filter = action.payload.filter;
+        },
+        changeTodolistEntityStatusAC(state, action: PayloadAction<{ id: string, status: RequestStatusType }>) {
+            const index = state.findIndex(tl => tl.id === action.payload.id);
+            state[index].entityStatus = action.payload.status;
+        },
+        setTodolistsAC(state, action: PayloadAction<{ todolists: Array<TodolistType> }>) {
+            return action.payload.todolists.map(tl => ({...tl, filter: 'all', entityStatus: 'idle'}));
+        },
+    }
+});
+
+export const {
+    setTodolistsAC,
+    changeTodolistEntityStatusAC,
+    removeTodolistAC,
+    addTodolistAC,
+    changeTodolistTitleAC,
+    changeTodolistFilterAC
+} = slice.actions;
+
+export const todolistsReducer = slice.reducer;
+
 
 // types
 export type AddTodolistActionType = ReturnType<typeof addTodolistAC>;
