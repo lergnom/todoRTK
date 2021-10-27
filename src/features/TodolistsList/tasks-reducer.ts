@@ -91,7 +91,7 @@ export const updateTaskTC = createAsyncThunk('tasks/updateTask', async (payload:
 
 const slice = createSlice({
     name: 'tasks',
-    initialState: initialState,
+    initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder.addCase(addTodolistAC, (state, action) => {
@@ -106,14 +106,11 @@ const slice = createSlice({
             });
         });
         builder.addCase(fetchTasks.fulfilled, (state, action) => {
-            // @ts-ignore
             state[action.payload.todolistId] = action.payload.tasks;
 
         });
         builder.addCase(removeTaskTC.fulfilled, (state, action) => {
-            // @ts-ignore
             const tasks = state[action.payload.todolistId];
-            // @ts-ignore
             const index = tasks.findIndex(t => t.id === action.payload.taskId);
             if (index > -1) {
                 tasks.splice(index, 1);
@@ -152,11 +149,3 @@ export type UpdateDomainTaskModelType = {
 export type TasksStateType = {
     [key: string]: Array<TaskType>
 }
-type ActionsType =
-    | AddTodolistActionType
-    | RemoveTodolistActionType
-    | SetTodolistsActionType
-type ThunkDispatch = Dispatch<ActionsType | ReturnType<typeof setAppStatusAC> | ReturnType<typeof setAppErrorAC>>
-
-
-// setAppInitializedAC, setAppErrorAC
