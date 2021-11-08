@@ -23,7 +23,6 @@ export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', asy
         return rejectWithValue(e);
     } finally {
         dispatch(setAppStatusAC({status: 'succeeded'}));
-
     }
 });
 
@@ -101,6 +100,12 @@ const slice = createSlice({
         setTodolistsAC(state, action: PayloadAction<{ todolists: Array<TodolistType> }>) {
             return action.payload.todolists.map(tl => ({...tl, filter: 'all', entityStatus: 'idle'}));
         },
+    },
+    extraReducers: builder => {
+        builder.addCase(fetchTodolistsTC.fulfilled, (state, action) => {
+            // @ts-ignore
+            return action.payload.todolists.map(tl => ({...tl, filter: 'all', entityStatus: 'idle'}));
+        } )
     }
 });
 
