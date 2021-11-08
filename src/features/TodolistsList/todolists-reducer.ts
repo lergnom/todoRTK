@@ -1,7 +1,6 @@
 import {todolistsAPI, TodolistType} from '../../api/todolists-api';
 import {Dispatch} from 'redux';
 import {RequestStatusType, setAppErrorAC, setAppStatusAC} from '../../app/app-reducer';
-import {handleServerNetworkError} from '../../utils/error-utils';
 import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 
@@ -26,19 +25,6 @@ export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', asy
     }
 });
 
-export const fetchTodolistsTC_old = () => {
-    return (dispatch: ThunkDispatch) => {
-        dispatch(setAppStatusAC({status: 'loading'}));
-        todolistsAPI.getTodolists()
-            .then((res) => {
-                dispatch(setTodolistsAC({todolists: res.data}));
-                dispatch(setAppStatusAC({status: 'succeeded'}));
-            })
-            .catch(error => {
-                handleServerNetworkError(error, dispatch);
-            });
-    };
-};
 export const removeTodolistTC = (todolistId: string) => {
     return (dispatch: ThunkDispatch) => {
         //изменим глобальный статус приложения, чтобы вверху полоса побежала
@@ -105,12 +91,11 @@ const slice = createSlice({
         builder.addCase(fetchTodolistsTC.fulfilled, (state, action) => {
             // @ts-ignore
             return action.payload.todolists.map(tl => ({...tl, filter: 'all', entityStatus: 'idle'}));
-        } )
+        });
     }
 });
 
 export const {
-    setTodolistsAC,
     changeTodolistEntityStatusAC,
     removeTodolistAC,
     addTodolistAC,
@@ -124,13 +109,11 @@ export const todolistsReducer = slice.reducer;
 // types
 export type AddTodolistActionType = ReturnType<typeof addTodolistAC>;
 export type RemoveTodolistActionType = ReturnType<typeof removeTodolistAC>;
-export type SetTodolistsActionType = ReturnType<typeof setTodolistsAC>;
 type ActionsType =
     | RemoveTodolistActionType
     | AddTodolistActionType
     | ReturnType<typeof changeTodolistTitleAC>
     | ReturnType<typeof changeTodolistFilterAC>
-    | SetTodolistsActionType
     | ReturnType<typeof changeTodolistEntityStatusAC>
 export type FilterValuesType = 'all' | 'active' | 'completed';
 export type TodolistDomainType = TodolistType & {
