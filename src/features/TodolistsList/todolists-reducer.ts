@@ -5,7 +5,6 @@ import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 
 // thunks
-
 export const fetchTodolistsTC = createAsyncThunk('todolists/fetchTodolists', async (arg, {
     dispatch,
     rejectWithValue
@@ -49,24 +48,19 @@ export const addTodolistTC = createAsyncThunk('todolists/addTodolist', async (ti
     return {todolist: res.data.data.item};
 });
 
+export const changeTodolistTitleTC = createAsyncThunk('todolists/changeTodolists', async (param: { id: string, title: string }, {
+    dispatch,
+    rejectWithValue
+}) => {
+    await todolistsAPI.updateTodolist(param.id, param.title);
+    return {id: param.id, title: param.title};
+});
 
-export const changeTodolistTitleTC = (id: string, title: string) => {
-    return (dispatch: Dispatch<ActionsType>) => {
-        todolistsAPI.updateTodolist(id, title)
-            .then((res) => {
-                dispatch(changeTodolistTitleAC({id, title}));
-            });
-    };
-};
 
 const slice = createSlice({
     name: 'todolist',
     initialState: [] as Array<TodolistDomainType>,
     reducers: {
-        changeTodolistTitleAC(state, action: PayloadAction<{ id: string, title: string }>) {
-            const index = state.findIndex(tl => tl.id === action.payload.id);
-            state[index].title = action.payload.title;
-        },
         changeTodolistFilterAC(state, action: PayloadAction<{ id: string, filter: FilterValuesType }>) {
             const index = state.findIndex(tl => tl.id === action.payload.id);
             state[index].filter = action.payload.filter;
@@ -94,12 +88,15 @@ const slice = createSlice({
         builder.addCase(addTodolistTC.fulfilled, (state, action) => {
             state.unshift({...action.payload.todolist, filter: 'all', entityStatus: 'idle'});
         });
+        builder.addCase(changeTodolistTitleTC.fulfilled, (state, action) => {
+            const index = state.findIndex(tl => tl.id === action.payload.id);
+            state[index].title = action.payload.title;
+        });
     }
 });
 
 export const {
     changeTodolistEntityStatusAC,
-    changeTodolistTitleAC,
     changeTodolistFilterAC
 } = slice.actions;
 
@@ -108,7 +105,6 @@ export const todolistsReducer = slice.reducer;
 
 // types
 type ActionsType =
-    | ReturnType<typeof changeTodolistTitleAC>
     | ReturnType<typeof changeTodolistFilterAC>
     | ReturnType<typeof changeTodolistEntityStatusAC>
 export type FilterValuesType = 'all' | 'active' | 'completed';
